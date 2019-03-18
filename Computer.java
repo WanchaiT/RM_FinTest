@@ -1,11 +1,14 @@
 import java.util.*;
 
-class Device {
-    int type;
-    int price;
-    int stock;
 
-    public Device(int type, int price, int stock) {
+class Device{
+    private int id;
+    private int type;
+    private int price;
+    private int stock;
+
+    public Device(int id, int type, int price, int stock) {
+        this.id = id;
         this.type = type;
         this.price = price;
         this.stock = stock;
@@ -36,13 +39,10 @@ class Device {
         this.price = price;
     }
 
-    /**
-     * @return the stock
-     */
-    public int getStock() {
+    public int getStock(){
         return stock;
     }
-
+   
     /**
      * @param stock the stock to set
      */
@@ -54,45 +54,107 @@ class Device {
         stock--;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    
+    public void printInfo(){
+        System.out.println("ID : " + id);
+        System.out.println("Type : " + type);
+        System.out.println("Price : " + price);
+        System.out.println("Stock : " + stock);
+    }
 }
 
 class Computer {
 
+    static Scanner scan = new Scanner(System.in);
+    static Map<Integer, Device> lhm = new LinkedHashMap<Integer, Device>();
+    // static Map<Integer, Device> lhm = new TreeMap<Integer, Device>(); sort 
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        Map<Integer, Device> lhm = new LinkedHashMap<Integer, Device>();
+        
+       
         
         int numDevice = scan.nextInt();
         
         for(int i = 0 ;i < numDevice ;i++){
-            lhm.put(scan.nextInt(), new Device(scan.nextInt(), scan.nextInt(), scan.nextInt()));
+            int id = scan.nextInt();
+            lhm.put(id, createDevive( id));
         }
+
+        System.out.println(lhm.keySet());
+
+        print();
 
         int numOrder = scan.nextInt();
 
         for (int i = 0; i < numOrder; i++) {
-            Device d1 = lhm.get(scan.nextInt());
-            Device d2 = lhm.get(scan.nextInt());
-            Device d3 = lhm.get(scan.nextInt());
             
-            if (d1.getType() == d2.getType() || 
-                d1.getType() == d3.getType() || 
-                d2.getType() == d3.getType()) {
-                
+            Device[] d = getDevice(scan.nextInt(), scan.nextInt(), scan.nextInt());
+           
+           
+            
+            if (!checkInvalid(d[0], d[1], d[2])) {
                 System.out.println("invalid order");
-            }else if (d1.getStock() == 0 ||
-                        d2.getStock() == 0 ||
-                        d3.getStock() == 0 ) {
-
+            }else if (checkStock(d[0], d[1], d[2])) {
                 System.out.println("out of stock");
             }else{
-                int sum = d1.getPrice() + d2.getPrice() + d3.getPrice();
+                int sum = getSum(d[0], d[1], d[2]);
                 System.out.println(sum);
-                d1.sellOne();
-                d2.sellOne();
-                d3.sellOne();
 
             }
+        }
+    }
+
+    public static boolean checkInvalid(Device d1, Device d2, Device d3){
+        Set<Integer> set = new HashSet<Integer>();
+        set.add(d1.getType());
+        set.add(d2.getType());
+        set.add(d3.getType());
+        return set.size() == 3;
+
+    }
+
+    public static Device createDevive(int id) {
+        return new Device(id, scan.nextInt(), scan.nextInt(), scan.nextInt());
+    }
+
+    public static boolean checkStock(Device d1, Device d2, Device d3) {
+        return  d1.getStock() == 0 ||
+                d2.getStock() == 0 ||
+                d3.getStock() == 0 ; 
+    }
+
+    public static Device[] getDevice(int d1, int d2, int d3){
+        Device[] d = {lhm.get(d1), lhm.get(d2), lhm.get(d3)};
+
+        return d;
+    }
+
+    public static int getSum(Device d1, Device d2, Device d3){
+        int sum = d1.getPrice() + d2.getPrice() + d3.getPrice();
+        sellOne(d1, d2 ,d3);
+        return sum;
+    }
+
+    public static void sellOne(Device d1, Device d2, Device d3){
+        d1.sellOne();
+        d2.sellOne();
+        d3.sellOne();
+    }
+
+    public static void print(){
+        for (Device d : lhm.values()) {
+            d.printInfo();
+            System.out.println();
         }
     }
 }
